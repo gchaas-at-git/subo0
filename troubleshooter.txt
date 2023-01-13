@@ -1,0 +1,7 @@
+Here are some ideas, why the code could not work
+
+1. chromedriver is not compatible with the chromebrowser version
+solution: update chromedriver
+
+2. When the 'find_elements()' function does not find an object it takes forever to load. 
+
