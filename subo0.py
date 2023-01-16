@@ -15,9 +15,8 @@ chrome_options.add_argument("--headless")
 
 from time import sleep
 import time
-
+import re
 import pandas
-
 import random
 
 #load browser driver
@@ -45,7 +44,7 @@ def sub_butt():
     driver.implicitly_wait(10)
     
     submit_button = driver.find_elements(By.CSS_SELECTOR, ('*[type="submit"]'))
-    print(len(submit_button))
+    print(f'number of buttons: {len(submit_button)}')
 
     if len(submit_button) ==1:
         submit_button[0].click()
@@ -137,7 +136,7 @@ def respond():
     #######################################################################################################
     #######################################################################################################
     #######################################################################################################
-    if r['table_len'] == 1 and r['cols_len'] == 1 and r['radios_len'] > 0 and r['checkboxes_len'] ==0 and r['dropdown_len'] == 0:
+    if r['table_len'] == 1 and r['cols_len'] == 1 and r['radios_len'] > 0 and r['checkboxes_len'] ==0 and r['dropdown_len'] == 0 and r['textfield_len'] ==0:
         
         #choose a random radio
         num = random.randint(0,r['radios_len']-1)
@@ -171,7 +170,7 @@ def respond():
     #######################################################################################################
     #######################################################################################################
     #######################################################################################################
-    elif r['table_len'] == 1 and r['cols_len'] > 1 and r['radios_len'] > 0 and r['checkboxes_len'] ==0 and r['dropdown_len'] == 0:
+    elif r['table_len'] == 1 and r['cols_len'] > 1 and r['radios_len'] > 0 and r['checkboxes_len'] ==0 and r['dropdown_len'] == 0 and r['textfield_len'] ==0:
     
         #choose a random radio from the first line
         num = random.randint(0,r['cols_len']-1)
@@ -206,15 +205,18 @@ def respond():
             r['radios'][num].click()
         elif num_x == 1:
             #if an email is needed:
-            text = driver.find_element(By.XPATH, ("//*[contains(text(),'E-Mail')]"))
+            text = driver.find_elements(By.XPATH, ("//*[contains(text(),'E-Mail')]"))
             
             if len(text) > 0:
-                for i in range(0,len(text)):
+                for i in range(0,len(r['textfield'])):
                     r['textfield'][i].send_keys("iamabot@subo.de")
             else:
-                for i in range(0,len(text)):
-                    r['textfield'][i].send_keys("i am a bot!")
-                
+                for i in range(0,len(r['textfield'])):
+                    #this should apply to most. 
+                    r['textfield'][i].send_keys(random.randint(0, 100))
+        
+        print("response to single response with textfield.")
+        
     ##textarea
     #######################################################################################################
     #######################################################################################################
@@ -231,21 +233,78 @@ def respond():
     #######################################################################################################
     elif r['dropdown_len'] >0:
         
-        r['dropdown'][0].click()
+        nums = []
         
-        select = Select(r['dropdown'][0])
-        options = select.options
-        num = random.randint(0,len(options))
-        select.select_by_index(num)
+        for i in range(0, r['dropdown_len']-1):
+            r['dropdown'][i].click()
+        
+            select = Select(r['dropdown'][i])
+            options = select.options
+            num = random.randint(0,len(options)-1)
+            select.select_by_index(num)
+        
+            nums.append(num)
+            
     
-        print(f'dropdown response, choose category {num}')
+        print(f'dropdown response, choose category {nums}')
     
+    ##textfield response
+    #######################################################################################################
+    #######################################################################################################
+    #######################################################################################################
+
+    elif r['table_len'] == 0 and r['textfield_len'] >0:
+        
+        #this should apply to most.
+        num =  random.randint(0, 100)
+        r['textfield'][0].send_keys(num) 
+        
+        print(f"textfield response: {num}")
+        
     else:
         print("no response")
     
     print(f"going through IFs takes {time.time() - start_time} sec")
     
     sub_butt()
+    
+    #do we have an error?
+    driver.implicitly_wait(0.2)
+    error = driver.find_elements(By.CSS_SELECTOR, ('*[class="error"]'))
+    
+    
+    
+    #if we have an error, try to correct it. 
+    if len(error) !=0:
+        
+        print("error found")
+        # I assume that the last error message contains the valueable information
+        error_text = error[-1].text
+        
+        print(error_text)
+        
+        #does the error text contain numbers?
+        numbers = re.findall(r'\d+', error_text)
+        
+        if len(numbers) != 0:
+            print("getting numbers")         
+            min_number = int(numbers[0])
+            max_number = int(numbers[1])
+            new_num = random.randint(min_number, max_number)
+            
+            r = find_me_elements()
+        
+                
+            r['textfield'][0].clear()
+            r['textfield'][0].send_keys(new_num)
+        else: 
+            r['textfield'][0].clear()
+            r['textfield'][0].send_keys("")
+        
+        print(f"corrected textfield response: {num}")
+            
+        sub_butt()
+   
     
     print(f"submit button was hit after {time.time() - start_time} sec")
     
@@ -255,7 +314,9 @@ def respond():
 
 
 #loop for number of responses to the survey
-for i in range(0,50):
+for i in range(0,2):
+    
+    print(f"Iteration {i}")
     
     #get me a driver
     #driver = webdriver.Chrome(service= Service("chromedriver.exe"), chrome_options=chrome_options)
@@ -274,3 +335,6 @@ for i in range(0,50):
             print("Webdriver not active or closed, Exiting")
             break
 
+
+# driver = webdriver.Chrome(service= Service("chromedriver.exe"))
+# driver.get("https://umfragen.iab.de/goto/HOPPw1")
