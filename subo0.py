@@ -233,17 +233,27 @@ def respond():
     #######################################################################################################
     elif r['dropdown_len'] >0:
         
-        nums = []
         
-        for i in range(0, r['dropdown_len']-1):
-            r['dropdown'][i].click()
-        
-            select = Select(r['dropdown'][i])
+        if r['dropdown_len'] == 1: 
+            r['dropdown'][0].click()
+            
+            select = Select(r['dropdown'][0])
             options = select.options
-            num = random.randint(0,len(options)-1)
-            select.select_by_index(num)
-        
-            nums.append(num)
+            nums = random.randint(0,len(options)-1)
+            select.select_by_index(nums)
+            
+        else: 
+            nums = []
+            
+            for i in range(0, r['dropdown_len']-1):
+                r['dropdown'][i].click()
+            
+                select = Select(r['dropdown'][i])
+                options = select.options
+                num = random.randint(0,len(options)-1)
+                select.select_by_index(num)
+            
+                nums.append(num)
             
     
         print(f'dropdown response, choose category {nums}')
@@ -314,7 +324,7 @@ def respond():
 
 
 #loop for number of responses to the survey
-for i in range(0,2):
+for i in range(0,5):
     
     print(f"Iteration {i}")
     
