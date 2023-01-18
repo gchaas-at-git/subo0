@@ -9,8 +9,7 @@ from selenium.common.exceptions import WebDriverException
 
 #making the driver headless
 from selenium.webdriver.chrome.options import Options
-chrome_options = Options()
-chrome_options.add_argument("--headless")
+
 
 from time import sleep
 import time
@@ -342,7 +341,9 @@ if st.sidebar.button("Start Pretest"):
                 st.write(f"**Pretest {i+1} of {input_responses} in progress**")
             
             #driver = webdriver.Chrome(service= Service("./chromedriver.exe"))
-            driver = webdriver.Chrome()
+            chrome_options = Options()
+            #chrome_options.add_argument("--headless")
+            driver = webdriver.Chrome(options=chrome_options)
             #get me a survey
             driver.get(input_link)
             
@@ -367,6 +368,9 @@ if st.sidebar.button("Start Pretest"):
                 st.write(f"**Pretest {i+1} of {input_responses} in progress**")
             
             #driver = webdriver.Chrome(service= Service("./chromedriver.exe"), options=chrome_options)
+            chrome_options = Options()
+            chrome_options.add_argument("--headless")
+            
             driver = webdriver.Chrome(options=chrome_options)
             #get me a survey
             driver.get(input_link)
