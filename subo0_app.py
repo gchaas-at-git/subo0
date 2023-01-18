@@ -342,6 +342,7 @@ if st.sidebar.button("Start Pretest"):
             
             #driver = webdriver.Chrome(service= Service("./chromedriver.exe"))
             chrome_options = Options()
+            chrome_options.add_argument('--no-sandbox')
             #chrome_options.add_argument("--headless")
             driver = webdriver.Chrome(options=chrome_options)
             #get me a survey
