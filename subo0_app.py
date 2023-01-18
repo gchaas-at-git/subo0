@@ -329,7 +329,7 @@ if st.sidebar.button("Start Pretest"):
     # Update the inputs
     st.write(f"SuBo0 will now respond to your survey ({input_link}) {input_responses} times")
     if input_head:
-        st.write("You chose to watch SuBo0 while responding. A seperate browser window will open and you can watch.")
+        st.write("You chose to watch SuBo0 while responding. A seperate browser window will open and you can watch. If you close the seperate browser window, you interrupt the response process.")
         
         #create a container to reset loop iteration numbers
         numbers = st.empty()
@@ -363,7 +363,7 @@ if st.sidebar.button("Start Pretest"):
             with numbers.container():
                 st.write(f"**Pretest {i+1} of {input_responses} in progress**")
             
-            driver = webdriver.Chrome(service= Service("chromedriver.exe"), chrome_options=chrome_options)
+            driver = webdriver.Chrome(service= Service("chromedriver.exe"), options=chrome_options)
             #get me a survey
             driver.get(input_link)
                         
