@@ -365,7 +365,8 @@ if st.sidebar.button("Start Pretest"):
             with numbers.container():
                 st.write(f"**Pretest {i+1} of {input_responses} in progress**")
             
-            driver = webdriver.Chrome(service= Service("./chromedriver.exe"), options=chrome_options)
+            #driver = webdriver.Chrome(service= Service("./chromedriver.exe"), options=chrome_options)
+            driver = webdriver.Chrome(options=chrome_options)
             #get me a survey
             driver.get(input_link)
                         
