@@ -330,7 +330,7 @@ for i in range(0,5):
     
     #get me a driver
     #driver = webdriver.Chrome(service= Service("chromedriver.exe"), chrome_options=chrome_options)
-    driver = webdriver.Chrome(service= Service("chromedriver.exe"))
+    driver = webdriver.Chrome(service= Service("./chromedriver.exe"))
     #get me a survey
     #driver.get("https://umfragen.iab.de/goto/subo1.de")
     driver.get("https://umfragen.iab.de/goto/HOPPw1")

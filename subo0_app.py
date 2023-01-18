@@ -314,6 +314,8 @@ st.write("""
 #### SuBo0: A simple survey bot for pretesting your web survey.
 """)
 
+st.write("For testing the app, you can use this survey: https://umfragen.iab.de/goto/HOPPw1")
+
 # Create a sidebar with three text inputs
 st.sidebar.title("")
 input_link = st.sidebar.text_input("Insert Link to the survey.", 
@@ -339,7 +341,7 @@ if st.sidebar.button("Start Pretest"):
             with numbers.container():
                 st.write(f"**Pretest {i+1} of {input_responses} in progress**")
             
-            driver = webdriver.Chrome(service= Service("chromedriver.exe"))
+            driver = webdriver.Chrome(service= Service("./chromedriver.exe"))
             #get me a survey
             driver.get(input_link)
             
@@ -363,7 +365,7 @@ if st.sidebar.button("Start Pretest"):
             with numbers.container():
                 st.write(f"**Pretest {i+1} of {input_responses} in progress**")
             
-            driver = webdriver.Chrome(service= Service("chromedriver.exe"), options=chrome_options)
+            driver = webdriver.Chrome(service= Service("./chromedriver.exe"), options=chrome_options)
             #get me a survey
             driver.get(input_link)
                         
