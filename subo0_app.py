@@ -23,7 +23,7 @@ import random
 
 # ----- write all necessary functions  ----- #
 
-def sub_butt():
+def sub_butt(show_response = True):
     
     driver.save_screenshot("screenshot.png")
         
@@ -44,8 +44,10 @@ def sub_butt():
     # return {'sub': len(submit_button)}
     sleep(1)
     
-    with screen.container():
-        st.image("screenshot.png", caption='Screenshot of example.com', use_column_width=True)
+    if show_response == True: 
+        with screen.container():
+            st.image("screenshot.png", caption='', use_column_width=True) 
+        
     
     #return st.image("screenshot.png", caption=f'screen', use_column_width=True)
 
@@ -113,7 +115,7 @@ def find_me_elements():
     }
     
 
-def respond():
+def respond(show_response = True):
 
     start_time = time.time()
     
@@ -267,8 +269,10 @@ def respond():
     
     print(f"going through IFs takes {time.time() - start_time} sec")
     
-    sub_butt()
-    
+    if show_response == True: 
+        sub_butt(show_response = True)
+    else:
+        sub_butt(show_response= False)
 
     #do we have an error?
     driver.implicitly_wait(0.2)
@@ -306,7 +310,10 @@ def respond():
         print(f"corrected textfield response: {num}")
         
             
-        sub_butt()
+        if show_response == True: 
+            sub_butt(show_response = True)
+        else:
+            sub_butt(show_response= False)
       
    
     
@@ -344,10 +351,11 @@ if st.sidebar.button("Start Pretest"):
     # Update the inputs
     st.write(f"SuBo0 will now respond to your survey ({input_link}) {input_responses} times")
     if input_head:
-        st.write("You chose to watch SuBo0 while responding. A seperate browser window will open and you can watch. If you close the seperate browser window, you interrupt the response process.")
+        st.write("You chose to watch SuBo0 while responding. You can watch Subo0 below.")
         
         #create a container to reset loop iteration numbers
         numbers = st.empty()
+        screen = st.empty() 
         
         for i in range(0,int(input_responses)):
             
@@ -367,9 +375,8 @@ if st.sidebar.button("Start Pretest"):
             
             driver.save_screenshot("screenshot.png")
 
-            screen = st.empty() 
             with screen.container():
-                st.image("screenshot.png", caption='Screenshot of example.com', use_column_width=True)
+                st.image("screenshot.png", caption='', use_column_width=True)
             
             
             #Switch to the other window
@@ -393,7 +400,7 @@ if st.sidebar.button("Start Pretest"):
             while True:
                 try:
                     #driver.current_url
-                    respond()
+                    respond(show_response = True)
                     
                 
         
@@ -429,7 +436,7 @@ if st.sidebar.button("Start Pretest"):
             while True:
                 try:
                     #driver.current_url
-                    respond()
+                    respond(show_response = False)
                         
                 except WebDriverException:
                     print("Webdriver not active or closed, Exiting")
