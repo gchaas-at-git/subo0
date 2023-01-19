@@ -6,6 +6,9 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.support.ui import WebDriverWait
+
+import streamlit.components.v1 as components
 
 #making the driver headless
 from selenium.webdriver.chrome.options import Options
@@ -21,8 +24,11 @@ import random
 # ----- write all necessary functions  ----- #
 
 def sub_butt():
-    driver.implicitly_wait(10)
     
+    driver.save_screenshot("screenshot.png")
+        
+    driver.implicitly_wait(10)
+
     submit_button = driver.find_elements(By.CSS_SELECTOR, ('*[type="submit"]'))
     print(f'number of buttons: {len(submit_button)}')
 
@@ -37,6 +43,11 @@ def sub_butt():
 
     # return {'sub': len(submit_button)}
     sleep(1)
+    
+    with screen.container():
+        st.image("screenshot.png", caption='Screenshot of example.com', use_column_width=True)
+    
+    #return st.image("screenshot.png", caption=f'screen', use_column_width=True)
 
 def find_me_elements():
 
@@ -258,6 +269,7 @@ def respond():
     
     sub_butt()
     
+
     #do we have an error?
     driver.implicitly_wait(0.2)
     error = driver.find_elements(By.CSS_SELECTOR, ('*[class="error"]'))
@@ -292,8 +304,10 @@ def respond():
             r['textfield'][0].send_keys("")
         
         print(f"corrected textfield response: {num}")
+        
             
         sub_butt()
+      
    
     
     print(f"submit button was hit after {time.time() - start_time} sec")
@@ -340,19 +354,54 @@ if st.sidebar.button("Start Pretest"):
             with numbers.container():
                 st.write(f"**Pretest {i+1} of {input_responses} in progress**")
             
-            #driver = webdriver.Chrome(service= Service("./chromedriver.exe"))
+                #components.iframe(input_link, height = 600, scrolling = True)
+            
             chrome_options = Options()
-            chrome_options.add_argument('--no-sandbox')
-            #chrome_options.add_argument("--headless")
+            chrome_options.add_argument('--window-size=1920x1080')
+            chrome_options.add_argument('--disable-extensions')
+            chrome_options.add_argument("--headless")
             driver = webdriver.Chrome(options=chrome_options)
-            #get me a survey
+            
+            
             driver.get(input_link)
             
+            driver.save_screenshot("screenshot.png")
+
+            screen = st.empty() 
+            with screen.container():
+                st.image("screenshot.png", caption='Screenshot of example.com', use_column_width=True)
+            
+            
+            #Switch to the other window
+            # window_before = driver.window_handles[0]
+            # driver.switch_to.window(window_before)
+            
+            #get me a survey
+            #driver.get(input_link)
+            #components.iframe(input_link, height = 600)
+            #components.iframe(driver_iframe, height = 600, scrolling = True)
+            #driver.switch_to.window(driver.window_handles[-1])
+            #driver.get(components.iframe(input_link, height = 600, scrolling = True))
+            
+            # locate the iframe element
+            #iframe = driver.find_element(By.XPATH, '//*[@id="root"]/div[1]/div[1]/div/div/div/section[2]/div[1]/div[1]/div/div[5]/div/div[2]/iframe')
+            
+            # switch the focus of the script to the iframe
+            #driver.switch_to.frame(iframe)                
+        
             #keep responding until the end of the survey
             while True:
                 try:
                     #driver.current_url
                     respond()
+                    
+                
+        
+                    # driver.save_screenshot("screenshot.png")
+                    # with screen.container():
+                    #     st.image("screenshot.png", caption=f'screen', use_column_width=True)
+                    
+                   
                         
                 except WebDriverException:
                     print("Webdriver not active or closed, Exiting")
