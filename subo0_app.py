@@ -1,31 +1,35 @@
 import streamlit as st
-import pandas as pd
 
+#selenium stuff
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import WebDriverException
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.chrome.options import Options # needed for making the driver headless
 
-import streamlit.components.v1 as components
-
-#making the driver headless
-from selenium.webdriver.chrome.options import Options
-
-
+#other packages
 from time import sleep
 import time
-import re
-import pandas
-import random
+import re # needed to extract numbers from text
+import random #to randomly choose response categories
 
 
 # ----- write all necessary functions  ----- #
 
+# the bot is based on three functions:
+## 1. sub_butt: function is used to find the number of submit buttons on a page. It always hits a submit button if available. 
+## If more than one is available, sub_butt hit the last submit button. If no submit button is available, responding to the survey ends.
+## 2. find_me_elements: function to find the necessary elements to identify the question format. 
+## 3. respond: function contains a bunch of if conditions to choose how to respond to the survey. Does not work without the function find_me_elements().
+
+# ----- write all necessary functions  ----- #
+
+#FUNCTION#
 def sub_butt(show_response = True):
     
-    driver.save_screenshot("screenshot.png")
+    #If show response is true, a screenshot will be made and shown in the iframe.
+    if show_response == True:
+        driver.save_screenshot("screenshot.png")
         
     driver.implicitly_wait(10)
 
@@ -40,32 +44,27 @@ def sub_butt(show_response = True):
         
     if len(submit_button) == 0:
         driver.close()
-
-    # return {'sub': len(submit_button)}
+    
+    #wait a second to make sure the new page loads    
     sleep(1)
     
+    #If show response is true, a screenshot will be made and shown in the iframe.
     if show_response == True: 
         with screen.container():
             st.image("screenshot.png", caption='', use_column_width=True) 
-        
     
-    #return st.image("screenshot.png", caption=f'screen', use_column_width=True)
-
+#FUNCTION#
 def find_me_elements():
 
-    driver.implicitly_wait(0.2)
-    # driver.delete_all_cookies()
-    # sleep(2)
+    driver.implicitly_wait(0.2) #needed to make sure that the new page is loaded
     
     #search for tables on page
     table = driver.find_elements(By.TAG_NAME, ("table"))
     rows = driver.find_elements(By.TAG_NAME, ("tr"))
-
-    # table = []
-    # rows = []
+    
     # Initialize the column count to 0
     col_count = 0
-
+    
     # Iterate through the rows
     for row in rows:
         # Find all <td> elements in the current row
@@ -80,13 +79,6 @@ def find_me_elements():
     textfield = driver.find_elements(By.CSS_SELECTOR, ('*[type="text"]'))
     textarea = driver.find_elements(By.TAG_NAME, ("textarea"))
     
-    #radios = []
-    # checkboxes = []
-    # dropdown = []
-    # textfield = []
-    # textarea = []
-    
-
     print(f'#tables: {len(table)}', 
           f'#cols: {col_count}',
           f'#radios: {len(radios)}',
@@ -114,7 +106,7 @@ def find_me_elements():
     'textarea': textarea,
     }
     
-
+#FUNCTION#
 def respond(show_response = True):
 
     start_time = time.time()
@@ -309,7 +301,7 @@ def respond(show_response = True):
         
         print(f"corrected textfield response: {num}")
         
-            
+        #If show response is true, a screenshot will be made and shown in the iframe.
         if show_response == True: 
             sub_butt(show_response = True)
         else:
@@ -329,125 +321,105 @@ def respond(show_response = True):
 
 # ----- Start with app here -----#
 
-#title 
-st.write("""
-#### SuBo0: A simple survey bot for pretesting your web survey.
-""")
+tab1, tab2 = st.tabs(["Main", "About Me"])
 
-st.write("For testing the app, you can use this survey: https://umfragen.iab.de/goto/HOPPw1")
+with tab1:
+    #title 
+    st.write("""
+    #### SuBo0: A simple survey bot for pretesting your web survey.
+    """)
 
-# Create a sidebar with three text inputs
-st.sidebar.title("")
-input_link = st.sidebar.text_input("Insert Link to the survey.", 
-                                   #placeholder= "https://umfragen.iab.de/goto/HOPPw1",
-                                   help = "Insert the link to your survey you want SuBo0 respond to. Please make sure that it is not password protected.")
-input_responses = st.sidebar.text_input("Enter the number of reponses.",
-                                        #placeholder= "2", 
-                                        help = "Define here how may times SuBo0 shall respond to your survey. Only numbers, e.g., 100") 
-input_head = st.sidebar.checkbox("Watch SuBo0 responding.",
-                                 help = "If you click this box, you can watch SuBo0 how it responds to your survey. If you do not click, SuBo0 will respond in the background.")
+    st.write("For testing the app, you can use this survey: https://umfragen.iab.de/goto/HOPPw1")
 
-if st.sidebar.button("Start Pretest"):
-    # Update the inputs
-    st.write(f"SuBo0 will now respond to your survey ({input_link}) {input_responses} times")
-    if input_head:
-        st.write("You chose to watch SuBo0 while responding. You can watch Subo0 below.")
+    # Create a sidebar with three text inputs
+    st.sidebar.title("")
+    input_link = st.sidebar.text_input("Insert Link to the survey.", 
+                                    help = "Insert the link to your survey you want SuBo0 respond to. Please make sure that it is not password protected.")
+
+    input_responses = st.sidebar.text_input("Enter the number of reponses.",
+                                            help = "Define here how may times SuBo0 shall respond to your survey. Only numbers, e.g., 100") 
+
+    input_head = st.sidebar.checkbox("Watch SuBo0 responding.",
+                                    help = "If you click this box, you can watch SuBo0 how it responds to your survey. If you do not click, SuBo0 will respond in the background.")
+
+    if st.sidebar.button("Start Pretest"):
+        # Update the inputs
+        st.write(f"SuBo0 will now respond to your survey ({input_link}) {input_responses} times")
         
-        #create a container to reset loop iteration numbers
-        numbers = st.empty()
-        screen = st.empty() 
-        
-        for i in range(0,int(input_responses)):
+        if input_head:
+            st.write("You chose to watch SuBo0 while responding. You can watch Subo0 below.")
             
-            with numbers.container():
-                st.write(f"**Pretest {i+1} of {input_responses} in progress**")
+            #create container to reset loop iteration numbers
+            numbers = st.empty()
+            screen = st.empty() 
             
-                #components.iframe(input_link, height = 600, scrolling = True)
-            
-            chrome_options = Options()
-            chrome_options.add_argument('--window-size=1920x1080')
-            chrome_options.add_argument('--disable-extensions')
-            chrome_options.add_argument("--headless")
-            driver = webdriver.Chrome(options=chrome_options)
-            
-            
-            driver.get(input_link)
-            
-            driver.save_screenshot("screenshot.png")
-
-            with screen.container():
-                st.image("screenshot.png", caption='', use_column_width=True)
-            
-            
-            #Switch to the other window
-            # window_before = driver.window_handles[0]
-            # driver.switch_to.window(window_before)
-            
-            #get me a survey
-            #driver.get(input_link)
-            #components.iframe(input_link, height = 600)
-            #components.iframe(driver_iframe, height = 600, scrolling = True)
-            #driver.switch_to.window(driver.window_handles[-1])
-            #driver.get(components.iframe(input_link, height = 600, scrolling = True))
-            
-            # locate the iframe element
-            #iframe = driver.find_element(By.XPATH, '//*[@id="root"]/div[1]/div[1]/div/div/div/section[2]/div[1]/div[1]/div/div[5]/div/div[2]/iframe')
-            
-            # switch the focus of the script to the iframe
-            #driver.switch_to.frame(iframe)                
-        
-            #keep responding until the end of the survey
-            while True:
-                try:
-                    #driver.current_url
-                    respond(show_response = True)
-                    
+            for i in range(0,int(input_responses)):
                 
-        
-                    # driver.save_screenshot("screenshot.png")
-                    # with screen.container():
-                    #     st.image("screenshot.png", caption=f'screen', use_column_width=True)
-                    
-                   
-                        
-                except WebDriverException:
-                    print("Webdriver not active or closed, Exiting")
-                    break
-    else:
-        st.write("You chose NOT to watch SuBo0 while responding. SuBo0 will respond to your web survey in the backround. Please wait. Maybe have a tea or coffee. Don't close the app.")
-        
-        #create a container to reset loop iteration numbers
-        numbers = st.empty()
-        
-        for i in range(0,int(input_responses)):
-            
-            with numbers.container():
-                st.write(f"**Pretest {i+1} of {input_responses} in progress**")
-            
-            #driver = webdriver.Chrome(service= Service("./chromedriver.exe"), options=chrome_options)
-            chrome_options = Options()
-            chrome_options.add_argument("--headless")
-            
-            driver = webdriver.Chrome(options=chrome_options)
-            #get me a survey
-            driver.get(input_link)
-                        
-            #keep responding until the end of the survey
-            while True:
-                try:
-                    #driver.current_url
-                    respond(show_response = False)
-                        
-                except WebDriverException:
-                    print("Webdriver not active or closed, Exiting")
-                    break
+                with numbers.container():
+                    st.write(f"**Pretest {i+1} of {input_responses} in progress**")
                 
-    with numbers.container():
-        st.write("**FINISHED!**")
-        st.write(f"SuBo0 has responded {input_responses} times to your survey ({input_link}). You can now close the app or start a new Pretest for your survey.")
+                #setting options for chromebrowser    
+                chrome_options = Options()
+                chrome_options.add_argument('--window-size=1920x1080')
+                chrome_options.add_argument('--disable-extensions')
+                chrome_options.add_argument("--headless")
+                driver = webdriver.Chrome(options=chrome_options)
+                
+                driver.get(input_link)
+            
+                driver.save_screenshot("screenshot.png")
+
+                with screen.container():
+                    st.image("screenshot.png", caption='', use_column_width=True)
+                
+                
+                #keep responding until the end of the survey
+                while True:
+                    try:
+                        respond(show_response = True)
+                        
+                    except WebDriverException:
+                        print("Webdriver not active or closed, Exiting")
+                        break
+        else:
+            st.write("You chose NOT to watch SuBo0 while responding. SuBo0 will respond to your web survey in the backround. Please wait. Maybe have a tea or coffee. Don't close the app.")
+            
+            #create a container to reset loop iteration numbers
+            numbers = st.empty()
+            
+            for i in range(0,int(input_responses)):
+                
+                with numbers.container():
+                    st.write(f"**Pretest {i+1} of {input_responses} in progress**")
+                
+                chrome_options = Options()
+                chrome_options.add_argument("--headless")
+                driver = webdriver.Chrome(options=chrome_options)
+                
+                #get me a survey
+                driver.get(input_link)
+                            
+                #keep responding until the end of the survey
+                while True:
+                    try:
+                        #driver.current_url
+                        respond(show_response = False)
+                            
+                    except WebDriverException:
+                        print("Webdriver not active or closed, Exiting")
+                        break
+                    
+        with numbers.container():
+            st.write("**FINISHED!**")
+            st.write(f"SuBo0 has responded {input_responses} times to your survey ({input_link}). You can now close the app or start a new Pretest for your survey.")
 
 
+with tab2:
+    #st.markdown("README.md")
+    with open("README.md", "r") as file:
+        content = file.read()
 
+    st.markdown(content)
 
 
 
